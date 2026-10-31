@@ -23,7 +23,12 @@ router
 
 router
   .route('/:id/status')
-  .patch(authorize('admin', 'staff'), updateSubscriptionStatus);
+  .patch(authorize('admin', 'staff'), updateSubscriptionStatus)
+  .post(authorize('admin', 'staff'), updateSubscriptionStatus);
+
+router
+  .route('/:id/transition')
+  .post(authorize('admin', 'staff'), updateSubscriptionStatus);
 
 router
   .route('/:id/generate-invoice')

@@ -226,13 +226,22 @@ export const createSubscription = async (req, res, next) => {
  */
 export const updateSubscriptionStatus = async (req, res, next) => {
   try {
-    const { status } = req.body;
+    const rawStatus = req.body.status || req.body.target_status;
+    if (!rawStatus) {
+      return res.status(400).json({
+        success: false,
+        message: 'A status or target_status field is required',
+      });
+    }
+
+    // Normalize to TitleCase (e.g. 'active' -> 'Active')
+    const status = rawStatus.charAt(0).toUpperCase() + rawStatus.slice(1).toLowerCase();
     const validStatuses = ['Draft', 'Quotation', 'Confirmed', 'Active', 'Closed'];
 
     if (!validStatuses.includes(status)) {
       return res.status(400).json({
         success: false,
-        message: `Invalid status. Must be one of: ${validStatuses.join(', ')}`,
+        message: `Invalid status: ${rawStatus}. Must be one of: ${validStatuses.join(', ')}`,
       });
     }
 
