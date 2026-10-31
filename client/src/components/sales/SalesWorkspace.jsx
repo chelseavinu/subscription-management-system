@@ -82,7 +82,7 @@ export default function SalesWorkspace({
 
   // Filter subscriptions in quotation or draft state
   const pipelineQuotes = subscriptions.filter(
-    (s) => s.status === 'Draft' || s.status === 'Quotation' || s.status === 'draft' || s.status === 'quotation'
+    (s) => s.status === 'Draft' || s.status === 'Quotation' || s.status === 'draft' || s.status === 'quotation' || s.status === 'Confirmed' || s.status === 'confirmed'
   );
 
   const calculateTemplateTotal = (tpl) => {
@@ -93,6 +93,20 @@ export default function SalesWorkspace({
     }, 0);
     const taxes = subtotal * 0.10;
     return subtotal + taxes;
+  };
+
+  const handleSelectTemplate = (tpl) => {
+    setSelectedTemplate(tpl);
+    if (tpl.validity_days) setValidityDays(tpl.validity_days);
+    if (tpl.payment_terms) setPaymentTerms(tpl.payment_terms);
+    setTimeout(() => {
+      const el = document.getElementById('customize-offer-section');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        const input = document.getElementById('target-customer-input');
+        if (input) input.focus();
+      }
+    }, 60);
   };
 
   const handleLaunchQuote = async () => {
@@ -123,6 +137,17 @@ export default function SalesWorkspace({
       console.error(err);
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleAdvanceStatus = async (id, nextStatus) => {
+    try {
+      if (onAdvanceSubscriptionStatus) {
+        await onAdvanceSubscriptionStatus(id, nextStatus);
+      }
+      setSuccessMessage(`Subscription status advanced to "${nextStatus}"!`);
+    } catch (err) {
+      console.error(err);
     }
   };
 
@@ -181,11 +206,11 @@ export default function SalesWorkspace({
             return (
               <div
                 key={tpl._id}
-                onClick={() => setSelectedTemplate(tpl)}
+                onClick={() => handleSelectTemplate(tpl)}
                 className={`royal-card p-5 rounded-2xl flex flex-col justify-between space-y-4 cursor-pointer transition-all ${
                   isSelected
-                    ? 'border-amber-400/60 ring-2 ring-amber-400/20 bg-white/[0.05]'
-                    : 'hover:border-amber-400/30'
+                    ? 'border-amber-400/80 ring-2 ring-amber-400/30 bg-amber-500/[0.04]'
+                    : 'hover:border-amber-400/40'
                 }`}
               >
                 <div>
@@ -231,14 +256,18 @@ export default function SalesWorkspace({
 
                   <button
                     type="button"
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all ${
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleSelectTemplate(tpl);
+                    }}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
                       isSelected
-                        ? 'btn-royal-gold'
-                        : 'royal-pill text-slate-300 hover:text-white'
+                        ? 'btn-royal-gold shadow-[0_0_15px_rgba(212,175,55,0.4)]'
+                        : 'royal-pill text-slate-300 hover:text-white hover:bg-white/[0.08]'
                     }`}
                   >
-                    <span>{isSelected ? 'Configuring' : 'Select'}</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
+                    <span>{isSelected ? 'Configuring Below ↓' : 'Configure Offer →'}</span>
+                    <ArrowRight className={`w-3.5 h-3.5 transition-transform ${isSelected ? 'rotate-90' : ''}`} />
                   </button>
                 </div>
               </div>
@@ -249,7 +278,7 @@ export default function SalesWorkspace({
 
       {/* Selected Template Offer Configuration Drawer */}
       {selectedTemplate && (
-        <div className="royal-panel p-6 sm:p-8 rounded-3xl border border-amber-400/40 space-y-6 animate-in slide-in-from-bottom-3">
+        <div id="customize-offer-section" className="royal-panel p-6 sm:p-8 rounded-3xl border border-amber-400/50 space-y-6 animate-in slide-in-from-bottom-3 scroll-mt-24">
           <div className="flex items-center justify-between pb-4 border-b border-white/[0.06]">
             <div>
               <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-amber-400/10 text-amber-300">
@@ -271,10 +300,11 @@ export default function SalesWorkspace({
             <div className="space-y-1.5">
               <label className="royal-label block">Target Customer</label>
               <input
+                id="target-customer-input"
                 type="text"
                 value={targetCustomer}
                 onChange={(e) => setTargetCustomer(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl bg-white/[0.03] border border-white/[0.08] text-white text-xs"
+                className="w-full px-3 py-2 rounded-xl bg-white/[0.03] border border-white/[0.08] text-white text-xs focus:outline-none focus:border-amber-400"
               />
             </div>
 
@@ -394,18 +424,27 @@ export default function SalesWorkspace({
                       <td className="py-3 px-4 text-right">
                         {q.status === 'Draft' || q.status === 'draft' ? (
                           <button
-                            onClick={() => onAdvanceSubscriptionStatus && onAdvanceSubscriptionStatus(q._id, 'Quotation')}
+                            onClick={() => handleAdvanceStatus(q._id, 'Quotation')}
                             className="royal-pill px-2.5 py-1 rounded-lg text-amber-300 hover:text-white text-[11px] font-bold cursor-pointer"
                           >
                             Send Quote →
                           </button>
-                        ) : (
+                        ) : q.status === 'Quotation' || q.status === 'quotation' ? (
                           <button
-                            onClick={() => onAdvanceSubscriptionStatus && onAdvanceSubscriptionStatus(q._id, 'Confirmed')}
+                            onClick={() => handleAdvanceStatus(q._id, 'Confirmed')}
                             className="btn-royal-gold px-2.5 py-1 rounded-lg text-slate-950 text-[11px] font-bold cursor-pointer"
                           >
                             Confirm Contract →
                           </button>
+                        ) : q.status === 'Confirmed' || q.status === 'confirmed' ? (
+                          <button
+                            onClick={() => handleAdvanceStatus(q._id, 'Active')}
+                            className="px-2.5 py-1 rounded-lg text-[11px] font-bold text-white bg-emerald-600 hover:bg-emerald-500 cursor-pointer shadow-sm transition-all"
+                          >
+                            Activate Subscription →
+                          </button>
+                        ) : (
+                          <span className="text-[11px] font-mono text-emerald-400 font-bold">✓ Active</span>
                         )}
                       </td>
                     </tr>

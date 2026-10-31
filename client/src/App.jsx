@@ -192,6 +192,46 @@ export default function App() {
     showToast(`Subscription advanced to "${newStatus}"!`);
   };
 
+  const handleCreateSubscriptionFromTemplate = async (quotePayload) => {
+    try {
+      // Find matching plan
+      const planObj = plans.find(p => p.name === quotePayload.plan_name) || plans[0];
+      const planId = planObj?._id || plans[0]?._id;
+
+      // Find matching products for lines
+      const processedItems = (quotePayload.items || []).map(item => {
+        const prod = products.find(p => p.name === item.product_name) || products[0];
+        return {
+          product_id: prod?._id || item.product_id,
+          product_name: item.product_name,
+          quantity: item.qty || item.quantity || 1,
+          unit_price: item.unit_price || prod?.sales_price || 100,
+          variant_name: item.variant || '',
+          variant_addon: item.variant_addon || 0,
+          tax_pct: item.tax_pct || 10
+        };
+      });
+
+      const payload = {
+        customer_name: quotePayload.customer_name,
+        customer_email: quotePayload.customer_email,
+        plan_id: planId,
+        status: quotePayload.status || 'Quotation',
+        items: processedItems,
+        payment_terms: quotePayload.payment_terms || 'Net 30',
+        validity_days: quotePayload.validity_days || 30
+      };
+
+      await subscriptionsApi.create(payload);
+      await loadData();
+      showToast(`Quotation successfully emitted for ${quotePayload.customer_name}! Added to pipeline.`);
+    } catch (err) {
+      console.error('Error creating subscription quotation:', err);
+      showToast(err.message || 'Failed to create quotation', 'error');
+      throw err;
+    }
+  };
+
   // ---------------- DISCOUNTS HANDLERS ----------------
   const handleCreateDiscount = async (formData) => {
     const created = await discountsApi.create(formData);
@@ -336,6 +376,9 @@ export default function App() {
                   quotationTemplates={quotationTemplates}
                   products={products}
                   plans={plans}
+                  subscriptions={subscriptions}
+                  onCreateSubscriptionFromTemplate={handleCreateSubscriptionFromTemplate}
+                  onAdvanceSubscriptionStatus={handleUpdateSubscriptionStatus}
                   onRefresh={loadData}
                   onNavigateTab={setActiveTab}
                 />
