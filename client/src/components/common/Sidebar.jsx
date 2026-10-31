@@ -7,7 +7,9 @@ import {
   RefreshCw, 
   Tag, 
   Code2,
-  LogOut
+  LogOut,
+  FileCheck,
+  UserCheck
 } from 'lucide-react';
 
 export default function Sidebar({ 
@@ -17,47 +19,70 @@ export default function Sidebar({
   currentUser,
   onLogout
 }) {
-  const navItems = [
+  const role = currentUser?.role || 'admin';
+
+  const allNavItems = [
     {
       id: 'dashboard',
       label: 'Financial Overview',
-      icon: BarChart3
+      icon: BarChart3,
+      roles: ['admin']
+    },
+    {
+      id: 'sales',
+      label: 'Sales & Quotations',
+      icon: FileCheck,
+      roles: ['admin', 'staff']
     },
     {
       id: 'products',
       label: 'Products & Variants',
-      icon: Package
+      icon: Package,
+      roles: ['admin', 'staff']
     },
     {
       id: 'plans',
       label: 'Subscription Plans',
-      icon: CalendarRange
+      icon: CalendarRange,
+      roles: ['admin', 'staff']
     },
     {
       id: 'invoices',
       label: 'Invoices & Receivables',
       icon: FileText,
       badge: metrics.overdueCount > 0 ? `${metrics.overdueCount}` : null,
-      badgeType: 'overdue'
+      badgeType: 'overdue',
+      roles: ['admin', 'staff']
     },
     {
       id: 'subscriptions',
       label: 'Subscription Lifecycle',
       icon: RefreshCw,
       badge: metrics.activeSubscriptionsCount ? `${metrics.activeSubscriptionsCount}` : null,
-      badgeType: 'active'
+      badgeType: 'active',
+      roles: ['admin', 'staff']
     },
     {
       id: 'discounts',
       label: 'Discounts & Rules',
-      icon: Tag
+      icon: Tag,
+      roles: ['admin']
+    },
+    {
+      id: 'portal',
+      label: 'Customer Portal',
+      icon: UserCheck,
+      roles: ['customer', 'admin']
     },
     {
       id: 'settings',
       label: 'API & Blueprint',
-      icon: Code2
+      icon: Code2,
+      roles: ['admin']
     }
   ];
+
+  const navItems = allNavItems.filter(item => item.roles.includes(role));
 
   return (
     <aside className="w-full md:w-56 lg:w-64 border-r border-white/[0.05] bg-[#07090e]/60 backdrop-blur-xl p-4 flex flex-col justify-between shrink-0">
@@ -103,12 +128,14 @@ export default function Sidebar({
 
       {/* Understated Financial Summary & User Logout */}
       <div className="pt-4 border-t border-white/[0.05] px-2 space-y-3">
-        <div className="flex items-center justify-between text-xs">
-          <span className="text-slate-500 font-medium text-[11px]">Active MRR</span>
-          <span className="font-mono font-bold text-white text-xs">
-            ${(metrics.mrr || 0).toLocaleString()}
-          </span>
-        </div>
+        {role !== 'customer' && (
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-slate-500 font-medium text-[11px]">Active MRR</span>
+            <span className="font-mono font-bold text-white text-xs">
+              ${(metrics.mrr || 0).toLocaleString()}
+            </span>
+          </div>
+        )}
 
         {currentUser && (
           <div className="pt-3 border-t border-white/[0.04] flex items-center justify-between gap-2">

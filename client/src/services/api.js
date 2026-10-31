@@ -500,6 +500,40 @@ export const authApi = {
     return data;
   },
 
+  register: async (name, email, password) => {
+    const baseUrl = config.getBaseUrl().replace(/\/$/, '');
+    const res = await fetch(`${baseUrl}/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, password }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.message || 'Registration failed');
+    }
+    if (data.token) {
+      localStorage.setItem('token', data.token);
+    }
+    if (data.user) {
+      localStorage.setItem('user', JSON.stringify(data.user));
+    }
+    return data;
+  },
+
+  forgotPassword: async (email) => {
+    const baseUrl = config.getBaseUrl().replace(/\/$/, '');
+    const res = await fetch(`${baseUrl}/auth/forgot-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.message || 'Failed to request password reset');
+    }
+    return data;
+  },
+
   getCurrentUser: () => {
     try {
       const u = localStorage.getItem('user');
@@ -515,4 +549,39 @@ export const authApi = {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
   },
+};
+
+// ---------------- QUOTATION TEMPLATES API ----------------
+export const quotationTemplatesApi = {
+  getAll: async () => {
+    return fetchWithFallback('/quotation-templates', { method: 'GET' }, () => {
+      return [
+        {
+          _id: 'qt_enterprise_01',
+          name: 'Enterprise ERP Cloud Bundle',
+          description: 'Includes full Odoo ERP integration variant, dedicated cloud compute, and priority SLA.',
+          category: 'Enterprise',
+          validity_days: 30,
+          payment_terms: 'Net 30',
+          plan: { name: 'Enterprise Yearly Commitment Plan', billing_interval: 'yearly', base_price: 1990 },
+          items: [
+            { product_name: 'Enterprise ERP Cloud Engine', variant_name: 'Brand: Odoo', variant_addon: 560, unit_price: 2400, quantity: 1, tax_pct: 10 },
+            { product_name: 'AI Operations Co-Pilot', variant_name: 'Tier: Pro', variant_addon: 120, unit_price: 490, quantity: 2, tax_pct: 10 }
+          ]
+        },
+        {
+          _id: 'qt_smb_01',
+          name: 'SMB SaaS Growth Starter',
+          description: 'Monthly scalable subscription tailored for agile digital-native organizations.',
+          category: 'SMB',
+          validity_days: 15,
+          payment_terms: 'Immediate',
+          plan: { name: 'Standard Monthly Growth Plan', billing_interval: 'monthly', base_price: 199 },
+          items: [
+            { product_name: 'Custom Domain & Security Addon', variant_name: 'Standard', variant_addon: 0, unit_price: 49, quantity: 1, tax_pct: 10 }
+          ]
+        }
+      ];
+    });
+  }
 };

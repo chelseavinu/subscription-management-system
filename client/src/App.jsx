@@ -7,6 +7,8 @@ import PlansManager from './components/plans/PlansManager';
 import InvoicesManager from './components/invoices/InvoicesManager';
 import SubscriptionsManager from './components/subscriptions/SubscriptionsManager';
 import DiscountsManager from './components/discounts/DiscountsManager';
+import SalesWorkspace from './components/sales/SalesWorkspace';
+import CustomerPortal from './components/customer/CustomerPortal';
 import BillingRunModal from './components/billing/BillingRunModal';
 import ApiSettingsModal from './components/settings/ApiSettingsModal';
 import PaymentRecordModal from './components/invoices/PaymentRecordModal';
@@ -20,6 +22,7 @@ import {
   paymentsApi, 
   discountsApi, 
   financeApi,
+  quotationTemplatesApi,
   authApi,
   config
 } from './services/api';
@@ -28,7 +31,12 @@ import { CheckCircle2, AlertCircle, Info } from 'lucide-react';
 export default function App() {
   const [token, setToken] = useState(() => authApi.getToken());
   const [currentUser, setCurrentUser] = useState(() => authApi.getCurrentUser());
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const [activeTab, setActiveTab] = useState(() => {
+    const user = authApi.getCurrentUser();
+    if (user?.role === 'customer') return 'portal';
+    if (user?.role === 'staff') return 'sales';
+    return 'dashboard';
+  });
   const [isLoading, setIsLoading] = useState(true);
   const [toast, setToast] = useState(null);
 
@@ -39,6 +47,7 @@ export default function App() {
   const [invoices, setInvoices] = useState([]);
   const [payments, setPayments] = useState([]);
   const [discounts, setDiscounts] = useState([]);
+  const [quotationTemplates, setQuotationTemplates] = useState([]);
   const [metrics, setMetrics] = useState({});
 
   // Global Modals
@@ -63,7 +72,8 @@ export default function App() {
         invoicesData,
         paymentsData,
         discountsData,
-        metricsData
+        metricsData,
+        quotesData
       ] = await Promise.all([
         productsApi.getAll(),
         plansApi.getAll(),
@@ -71,7 +81,8 @@ export default function App() {
         invoicesApi.getAll(),
         paymentsApi.getAll(),
         discountsApi.getAll(),
-        financeApi.getOverviewMetrics()
+        financeApi.getOverviewMetrics(),
+        quotationTemplatesApi.getAll().catch(() => [])
       ]);
 
       setProducts(productsData || []);
@@ -81,6 +92,7 @@ export default function App() {
       setPayments(paymentsData || []);
       setDiscounts(discountsData || []);
       setMetrics(metricsData || {});
+      setQuotationTemplates(quotesData || []);
     } catch (err) {
       console.error('Error loading application data:', err);
       showToast('Failed to load data. Falling back to offline sandbox.', 'error');
@@ -100,6 +112,13 @@ export default function App() {
   const handleLoginSuccess = (user, jwtToken) => {
     setCurrentUser(user);
     setToken(jwtToken);
+    if (user.role === 'customer') {
+      setActiveTab('portal');
+    } else if (user.role === 'staff') {
+      setActiveTab('sales');
+    } else {
+      setActiveTab('dashboard');
+    }
     showToast(`Welcome back, ${user.name}!`);
   };
 
@@ -309,6 +328,25 @@ export default function App() {
                 <SubscriptionsManager
                   subscriptions={subscriptions}
                   onUpdateSubscriptionStatus={handleUpdateSubscriptionStatus}
+                />
+              )}
+
+              {activeTab === 'sales' && (
+                <SalesWorkspace
+                  quotationTemplates={quotationTemplates}
+                  products={products}
+                  plans={plans}
+                  onRefresh={loadData}
+                  onNavigateTab={setActiveTab}
+                />
+              )}
+
+              {activeTab === 'portal' && (
+                <CustomerPortal
+                  currentUser={currentUser}
+                  subscriptions={subscriptions}
+                  invoices={invoices}
+                  onRefresh={loadData}
                 />
               )}
 
