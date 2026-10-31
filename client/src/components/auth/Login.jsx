@@ -33,39 +33,7 @@ export default function Login({ onLoginSuccess }) {
   const [forgotSuccess, setForgotSuccess] = useState(null);
   const [forgotError, setForgotError] = useState(null);
 
-  const demoAccounts = [
-    {
-      role: 'Admin',
-      label: 'Platform Admin',
-      email: 'admin@brightloop.com',
-      password: 'Admin#1234',
-      badge: 'Full Access',
-      badgeColor: 'border-amber-400/40 text-amber-300 bg-amber-400/10'
-    },
-    {
-      role: 'Staff',
-      label: 'Operations Staff',
-      email: 'staff@brightloop.com',
-      password: 'Staff#1234',
-      badge: 'Billing & Ops',
-      badgeColor: 'border-blue-400/40 text-blue-300 bg-blue-400/10'
-    },
-    {
-      role: 'Client',
-      label: 'Acme Global',
-      email: 'client@business.com',
-      password: 'Client#1234',
-      badge: 'Customer',
-      badgeColor: 'border-emerald-400/40 text-emerald-300 bg-emerald-400/10'
-    }
-  ];
 
-  const handleQuickFill = (account) => {
-    setAuthMode('login');
-    setEmail(account.email);
-    setPassword(account.password);
-    setError(null);
-  };
 
   // Password rules validation for registration
   const passwordCriteria = {
@@ -332,40 +300,7 @@ export default function Login({ onLoginSuccess }) {
             </button>
           </form>
 
-          {/* Quick-Fill Demo Accounts (Login Only) */}
-          {authMode === 'login' && (
-            <div className="pt-4 border-t border-white/[0.06] space-y-3">
-              <div className="flex items-center justify-between text-xs text-slate-400">
-                <span className="flex items-center gap-1.5 font-semibold text-[11px] tracking-wide text-amber-300/80 uppercase">
-                  <Sparkles className="w-3.5 h-3.5" /> Demo Fast-Fill Profiles
-                </span>
-                <span className="text-[10px] text-slate-500">One-click</span>
-              </div>
 
-              <div className="grid grid-cols-3 gap-2">
-                {demoAccounts.map((acc) => (
-                  <button
-                    key={acc.role}
-                    type="button"
-                    onClick={() => handleQuickFill(acc)}
-                    className="p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.06] hover:bg-white/[0.05] hover:border-amber-400/30 transition-all text-left flex flex-col justify-between group cursor-pointer"
-                  >
-                    <div className="flex items-center justify-between w-full mb-1">
-                      <span className="font-bold text-xs text-white group-hover:text-amber-300 transition-colors">
-                        {acc.role}
-                      </span>
-                      <span className={`text-[9px] font-mono px-1 py-0.5 rounded border ${acc.badgeColor}`}>
-                        {acc.badge}
-                      </span>
-                    </div>
-                    <span className="text-[10px] text-slate-400 truncate w-full font-mono">
-                      {acc.email.split('@')[0]}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
 
         </div>
 
