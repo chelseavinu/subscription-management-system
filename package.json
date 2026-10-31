@@ -14,7 +14,8 @@
     "start:engine": "node src/server.js",
     "test:member2": "node tests/member2-workflows.test.js",
     "test:member3": "node scripts/test_member3.js",
-    "test": "node tests/member2-workflows.test.js"
+    "test:smoke": "node tests/unified-smoke-test.js",
+    "test": "node tests/unified-smoke-test.js"
   },
   "keywords": [
     "odoo",

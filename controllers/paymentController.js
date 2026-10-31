@@ -72,7 +72,12 @@ export const recordPayment = async (req, res, next) => {
       });
     }
 
+    const count = await Payment.countDocuments();
+    const year = new Date().getFullYear();
+    const paymentNumber = `PAY-${year}-${String(count + 1).padStart(4, '0')}`;
+
     const newPayment = await Payment.create({
+      payment_number: paymentNumber,
       invoice: invoice._id,
       amount: paymentAmount,
       payment_method,

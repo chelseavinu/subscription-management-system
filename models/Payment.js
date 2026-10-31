@@ -2,6 +2,11 @@ import mongoose from 'mongoose';
 
 const paymentSchema = new mongoose.Schema(
   {
+    payment_number: {
+      type: String,
+      sparse: true,
+      trim: true,
+    },
     invoice: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Invoice',
