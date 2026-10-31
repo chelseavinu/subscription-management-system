@@ -11,6 +11,7 @@ import BillingRunModal from './components/billing/BillingRunModal';
 import ApiSettingsModal from './components/settings/ApiSettingsModal';
 import PaymentRecordModal from './components/invoices/PaymentRecordModal';
 import InvoiceDetailModal from './components/invoices/InvoiceDetailModal';
+import PresentationGuide from './components/presentation/PresentationGuide';
 import { 
   productsApi, 
   plansApi, 
@@ -249,6 +250,14 @@ export default function App() {
                   onNavigateTab={setActiveTab}
                 />
               )}
+
+              {activeTab === 'presentation' && (
+                <PresentationGuide
+                  onNavigateTab={setActiveTab}
+                  onTriggerBilling={() => setIsBillingModalOpen(true)}
+                />
+              )}
+
 
               {activeTab === 'products' && (
                 <ProductsManager

@@ -6,7 +6,8 @@ import {
   FileText, 
   RefreshCw, 
   Tag, 
-  Code2
+  Code2,
+  Award
 } from 'lucide-react';
 
 export default function Sidebar({ activeTab, onSelectTab, metrics = {} }) {
@@ -15,6 +16,13 @@ export default function Sidebar({ activeTab, onSelectTab, metrics = {} }) {
       id: 'dashboard',
       label: 'Financial Overview',
       icon: BarChart3
+    },
+    {
+      id: 'presentation',
+      label: 'Judge Defense & Q&A',
+      icon: Award,
+      badge: 'Pitch',
+      badgeType: 'active'
     },
     {
       id: 'products',
@@ -51,6 +59,7 @@ export default function Sidebar({ activeTab, onSelectTab, metrics = {} }) {
       icon: Code2
     }
   ];
+
 
   return (
     <aside className="w-full md:w-56 lg:w-64 border-r border-white/[0.05] bg-[#07090e]/60 backdrop-blur-xl p-4 flex flex-col justify-between shrink-0">
