@@ -12,6 +12,30 @@ import { protect, authorize } from '../middleware/auth.js';
 
 const router = express.Router();
 
+// Root API Health-Check & Endpoints Discovery
+router.get(['/', ''], (req, res) => {
+  res.status(200).json({
+    name: 'Brightloop Software API',
+    description: 'Subscription Management and Recurring Billing Platform',
+    version: '1.0.0',
+    success: true,
+    message: 'Brightloop Platform API is live and operational',
+    endpoints: {
+      auth: '/api/auth',
+      products: '/api/products',
+      plans: '/api/plans',
+      subscriptions: '/api/subscriptions',
+      invoices: '/api/invoices',
+      payments: '/api/payments',
+      analytics: '/api/analytics',
+      quotationTemplates: '/api/quotation-templates',
+      sales: '/api/sales',
+      customers: '/api/customers',
+      health: '/api/health',
+    },
+  });
+});
+
 // Mount authentication routes at /api/auth
 router.use('/auth', authRoutes);
 

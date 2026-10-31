@@ -69,15 +69,7 @@ if (fs.existsSync(clientDistPath)) {
   });
 }
 
-// 5. 404 Not Found Catch-All Handler for API
-app.use('/api/*', (req, res) => {
-  res.status(404).json({
-    success: false,
-    message: `Resource not found at ${req.originalUrl}`,
-  });
-});
-
-// Fallback 404
+// 5. 404 Catch-All Handler (invoked only when no mounted route matches)
 app.use((req, res) => {
   res.status(404).json({
     success: false,
@@ -97,6 +89,12 @@ const server = app.listen(PORT, () => {
   console.log(`🌍 Client URL: http://localhost:${PORT}`);
   console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`====================================================`);
+}).on('error', (err) => {
+  if (err.code === 'EADDRINUSE') {
+    console.log(`[Server] Port ${PORT} is already bound by an active process.`);
+  } else {
+    throw err;
+  }
 });
 
 // Handle unhandled promise rejections

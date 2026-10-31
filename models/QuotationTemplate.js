@@ -91,7 +91,6 @@ const quotationTemplateSchema = new mongoose.Schema(
   }
 );
 
-quotationTemplateSchema.index({ name: 1 });
 quotationTemplateSchema.index({ is_active: 1 });
 
 const QuotationTemplate = mongoose.model('QuotationTemplate', quotationTemplateSchema);
