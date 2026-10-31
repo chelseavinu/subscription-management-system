@@ -9,6 +9,8 @@
     "dev": "node --watch server.js",
     "client": "npm run dev --prefix client",
     "build:client": "npm run build --prefix client",
+    "admin": "npm run dev --prefix admin-finance",
+    "build:admin": "npm run build --prefix admin-finance",
     "seed": "node scripts/seed.js",
     "seed:engine": "node src/scripts/seed.js",
     "start:engine": "node src/server.js",
