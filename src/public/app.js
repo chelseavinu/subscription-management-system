@@ -1,7 +1,13 @@
-// Brightloop Subscription Engine - Client Logic
+// Brightloop Subscription Platform - Unified Client Logic
 
 let availableProducts = [];
 let availablePlans = [];
+let activeUser = {
+  name: 'Sarah Connor',
+  email: 'admin@brightloop.io',
+  role: 'admin',
+  token: 'mock-admin-token'
+};
 
 document.addEventListener('DOMContentLoaded', () => {
   initTabs();
@@ -11,15 +17,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Event Listeners
   document.getElementById('btn-refresh').addEventListener('click', loadAllData);
-  document.getElementById('btn-open-billing-modal').addEventListener('click', () => {
-    openModal('modal-billing');
-  });
+  document.getElementById('btn-open-billing-modal').addEventListener('click', () => openModal('modal-billing'));
   document.getElementById('btn-execute-billing-run').addEventListener('click', executeBillingRun);
   document.getElementById('btn-submit-payment').addEventListener('click', submitPayment);
   document.getElementById('btn-calc-quote').addEventListener('click', calculateQuotePreview);
   document.getElementById('btn-submit-quote').addEventListener('click', submitQuote);
-
   document.getElementById('quote-product-select').addEventListener('change', updateVariantDropdown);
+
+  // Member 1 Listeners
+  document.getElementById('btn-submit-new-product').addEventListener('click', submitNewProduct);
+  document.getElementById('btn-submit-new-plan').addEventListener('click', submitNewPlan);
+  document.getElementById('btn-submit-register').addEventListener('click', submitRegistration);
 });
 
 // Tab Navigation
@@ -65,6 +73,31 @@ function closeModal(id) {
 function initDefaults() {
   const today = new Date().toISOString().split('T')[0];
   document.getElementById('billing-run-date').value = today;
+  updateUserBadge();
+}
+
+function updateUserBadge() {
+  document.getElementById('active-user-role').textContent = activeUser.role.toUpperCase();
+  const sessionBox = document.getElementById('session-user-info');
+  if (sessionBox) {
+    sessionBox.innerHTML = `
+      Logged in as: <strong>${activeUser.name}</strong> (${activeUser.email})<br>
+      Active Role: <span class="badge badge-${activeUser.role === 'admin' ? 'confirmed' : (activeUser.role === 'staff' ? 'quotation' : 'active')}">${activeUser.role.toUpperCase()}</span><br>
+      <small style="color:var(--text-muted); font-family:monospace;">Token: ${activeUser.token ? activeUser.token.slice(0, 32) + '...' : 'None'}</small>
+    `;
+  }
+}
+
+// Global Fetch Wrapper to pass Active Role & Token
+function apiFetch(url, options = {}) {
+  const headers = {
+    'Content-Type': 'application/json',
+    'x-user-role': activeUser.role,
+    'x-user-name': activeUser.name,
+    'Authorization': activeUser.token ? `Bearer ${activeUser.token}` : '',
+    ...(options.headers || {})
+  };
+  return fetch(url, { ...options, headers });
 }
 
 // Load all API data
@@ -81,7 +114,7 @@ async function loadAllData() {
 // 1. Financial Metrics
 async function fetchMetrics() {
   try {
-    const res = await fetch('/api/billing/metrics');
+    const res = await apiFetch('/api/billing/metrics');
     const json = await res.json();
     if (json.success) {
       const m = json.data.metrics;
@@ -104,7 +137,7 @@ async function fetchMetrics() {
 // 2. Subscriptions
 async function fetchSubscriptions() {
   try {
-    const res = await fetch('/api/subscriptions');
+    const res = await apiFetch('/api/subscriptions');
     const json = await res.json();
     const tbody = document.getElementById('subscriptions-table-body');
     tbody.innerHTML = '';
@@ -166,9 +199,8 @@ function renderSubscriptionActions(sub) {
 
 async function transitionSub(id, status, reason = '') {
   try {
-    const res = await fetch(`/api/subscriptions/${id}/transition`, {
+    const res = await apiFetch(`/api/subscriptions/${id}/transition`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status, reason })
     });
     const json = await res.json();
@@ -185,9 +217,8 @@ async function transitionSub(id, status, reason = '') {
 
 async function renewSub(id) {
   try {
-    const res = await fetch(`/api/subscriptions/${id}/renew`, {
+    const res = await apiFetch(`/api/subscriptions/${id}/renew`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ months: 12 })
     });
     const json = await res.json();
@@ -205,7 +236,7 @@ async function renewSub(id) {
 // 3. Invoices
 async function fetchInvoices() {
   try {
-    const res = await fetch('/api/invoices');
+    const res = await apiFetch('/api/invoices');
     const json = await res.json();
     const tbody = document.getElementById('invoices-table-body');
     tbody.innerHTML = '';
@@ -259,7 +290,7 @@ function renderInvoiceActions(inv) {
 
 async function confirmInvoice(id) {
   try {
-    const res = await fetch(`/api/invoices/${id}/confirm`, { method: 'POST' });
+    const res = await apiFetch(`/api/invoices/${id}/confirm`, { method: 'POST' });
     const json = await res.json();
     if (json.success) {
       showToast('Invoice confirmed', 'success');
@@ -274,7 +305,7 @@ async function confirmInvoice(id) {
 
 async function sendInvoice(id) {
   try {
-    const res = await fetch(`/api/invoices/${id}/send`, { method: 'POST' });
+    const res = await apiFetch(`/api/invoices/${id}/send`, { method: 'POST' });
     const json = await res.json();
     if (json.success) {
       showToast(json.data.message, 'info');
@@ -289,7 +320,7 @@ async function sendInvoice(id) {
 
 async function printInvoice(id) {
   try {
-    const res = await fetch(`/api/invoices/${id}/print`);
+    const res = await apiFetch(`/api/invoices/${id}/print`);
     const json = await res.json();
     if (json.success) {
       const inv = json.data.invoice;
@@ -358,7 +389,7 @@ async function printInvoice(id) {
 // 4. Payments
 async function fetchPayments() {
   try {
-    const res = await fetch('/api/payments');
+    const res = await apiFetch('/api/payments');
     const json = await res.json();
     const tbody = document.getElementById('payments-table-body');
     tbody.innerHTML = '';
@@ -409,9 +440,8 @@ async function submitPayment() {
   }
 
   try {
-    const res = await fetch('/api/payments', {
+    const res = await apiFetch('/api/payments', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         invoice_id,
         amount,
@@ -439,9 +469,8 @@ async function executeBillingRun() {
   const auto_confirm = document.getElementById('billing-auto-confirm').checked;
 
   try {
-    const res = await fetch('/api/billing/trigger-run', {
+    const res = await apiFetch('/api/billing/trigger-run', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ target_date, dry_run, auto_confirm })
     });
     const json = await res.json();
@@ -468,12 +497,12 @@ async function executeBillingRun() {
   }
 }
 
-// 6. Catalog & Quote Sandbox
+// 6. Catalog (Member 1) & Quote Sandbox
 async function fetchCatalogData() {
   try {
     const [pRes, plRes] = await Promise.all([
-      fetch('/api/catalog/products'),
-      fetch('/api/catalog/plans')
+      apiFetch('/api/catalog/products'),
+      apiFetch('/api/catalog/plans')
     ]);
     const pJson = await pRes.json();
     const plJson = await plRes.json();
@@ -485,6 +514,7 @@ async function fetchCatalogData() {
         <option value="${p._id}">${p.name} ($${p.sales_price})</option>
       `).join('');
       updateVariantDropdown();
+      renderCatalogProductsTable();
     }
 
     if (plJson.success) {
@@ -493,12 +523,43 @@ async function fetchCatalogData() {
       plSelect.innerHTML = availablePlans.map(pl => `
         <option value="${pl._id}">${pl.name} (${pl.billing_interval} - min ${pl.min_quantity} qty)</option>
       `).join('');
+      renderCatalogPlansTable();
     }
 
     calculateQuotePreview();
   } catch (err) {
     console.error('Catalog fetch error:', err);
   }
+}
+
+function renderCatalogProductsTable() {
+  const tbody = document.getElementById('catalog-products-table');
+  if (!tbody) return;
+  tbody.innerHTML = availableProducts.map(p => `
+    <tr>
+      <td style="font-weight: 500;">${p.name}</td>
+      <td style="text-transform: capitalize;">${p.type || 'software'}</td>
+      <td style="font-weight: 600;">$${p.sales_price}</td>
+      <td style="font-size: 0.8rem; color: var(--accent-cyan);">
+        ${(p.variants && p.variants.length) ? p.variants.map(v => `${v.name}: ${v.option} (+$${v.extra_price})`).join(', ') : 'Standard'}
+      </td>
+    </tr>
+  `).join('');
+}
+
+function renderCatalogPlansTable() {
+  const tbody = document.getElementById('catalog-plans-table');
+  if (!tbody) return;
+  tbody.innerHTML = availablePlans.map(pl => `
+    <tr>
+      <td style="font-weight: 500;">${pl.name}</td>
+      <td style="text-transform: capitalize;">${pl.billing_interval}</td>
+      <td>${pl.min_quantity || 1}</td>
+      <td style="font-size: 0.75rem;">
+        ${pl.auto_close ? 'Auto-close' : 'Continuous'} &bull; ${pl.allow_pause !== false ? 'Pause allowed' : 'No pause'}
+      </td>
+    </tr>
+  `).join('');
 }
 
 function updateVariantDropdown() {
@@ -545,9 +606,8 @@ async function calculateQuotePreview() {
   }];
 
   try {
-    const res = await fetch('/api/subscriptions/calculate-preview', {
+    const res = await apiFetch('/api/subscriptions/calculate-preview', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         plan_id: plSelect.value,
         items: itemsPayload,
@@ -606,17 +666,159 @@ async function submitQuote() {
   };
 
   try {
-    const res = await fetch('/api/subscriptions/quote-template', {
+    const res = await apiFetch('/api/subscriptions/quote-template', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
     const json = await res.json();
     if (json.success) {
       showToast(`Quotation ${json.data.subscription_number} generated!`, 'success');
       loadAllData();
-      // Switch to Subscriptions Tab
       document.querySelector('[data-tab="tab-subscriptions"]').click();
+    } else {
+      showToast(json.message, 'error');
+    }
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+// 7. Member 1 Handlers: Add Product, Add Plan, Auth Demo
+async function submitNewProduct() {
+  const name = document.getElementById('new-prod-name').value.trim();
+  const type = document.getElementById('new-prod-type').value;
+  const sales_price = Number(document.getElementById('new-prod-price').value);
+  const option = document.getElementById('new-prod-var-option').value.trim();
+  const extra_price = Number(document.getElementById('new-prod-var-extra').value) || 0;
+
+  if (!name || isNaN(sales_price)) {
+    showToast('Name and price are required', 'error');
+    return;
+  }
+
+  const payload = {
+    name,
+    type,
+    sales_price,
+    tax_pct: 10,
+    variants: option ? [{ name: 'Brand', option, extra_price }] : []
+  };
+
+  try {
+    const res = await apiFetch('/api/catalog/products', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+    const json = await res.json();
+    if (json.success) {
+      showToast(`Product "${name}" added with variant (+$${extra_price})`, 'success');
+      closeModal('modal-create-product');
+      fetchCatalogData();
+    } else {
+      showToast(json.message, 'error');
+    }
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+async function submitNewPlan() {
+  const name = document.getElementById('new-plan-name').value.trim();
+  const billing_interval = document.getElementById('new-plan-interval').value;
+  const min_quantity = Number(document.getElementById('new-plan-minqty').value) || 1;
+  const auto_close = document.getElementById('new-plan-autoclose').checked;
+  const allow_pause = document.getElementById('new-plan-allowpause').checked;
+
+  if (!name) {
+    showToast('Plan name is required', 'error');
+    return;
+  }
+
+  const payload = {
+    name,
+    billing_interval,
+    min_quantity,
+    auto_close,
+    allow_pause
+  };
+
+  try {
+    const res = await apiFetch('/api/catalog/plans', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+    const json = await res.json();
+    if (json.success) {
+      showToast(`Plan "${name}" created successfully!`, 'success');
+      closeModal('modal-create-plan');
+      fetchCatalogData();
+    } else {
+      showToast(json.message, 'error');
+    }
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+async function demoLogin(email, password, role) {
+  try {
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    const json = await res.json();
+    if (json.success) {
+      activeUser = {
+        name: json.data.name,
+        email: json.data.email,
+        role: json.data.role,
+        token: json.token
+      };
+      updateUserBadge();
+      showToast(`Switched session to ${json.data.role.toUpperCase()} (${json.data.name})`, 'success');
+      loadAllData();
+    } else {
+      // Fallback local session switch for demo
+      activeUser = {
+        name: role === 'admin' ? 'Sarah Connor (Admin)' : (role === 'staff' ? 'David Miller (Staff)' : 'Acme Retail (Customer)'),
+        email,
+        role,
+        token: `mock-${role}-jwt-token`
+      };
+      updateUserBadge();
+      showToast(`Switched active role to ${role.toUpperCase()}`, 'info');
+      loadAllData();
+    }
+  } catch (err) {
+    activeUser.role = role;
+    updateUserBadge();
+    showToast(`Role switched to ${role.toUpperCase()}`, 'info');
+  }
+}
+
+async function submitRegistration() {
+  const name = document.getElementById('reg-name').value.trim();
+  const email = document.getElementById('reg-email').value.trim();
+  const password = document.getElementById('reg-password').value;
+  const role = document.getElementById('reg-role').value;
+
+  if (!name || !email || !password) {
+    showToast('All fields are required', 'error');
+    return;
+  }
+
+  try {
+    const res = await apiFetch('/api/auth/register', {
+      method: 'POST',
+      body: JSON.stringify({ name, email, password, role })
+    });
+    const json = await res.json();
+    if (json.success) {
+      showToast(`Account created for ${json.data.name} (${json.data.role})!`, 'success');
+      document.getElementById('reg-name').value = '';
+      document.getElementById('reg-email').value = '';
+      document.getElementById('reg-password').value = '';
     } else {
       showToast(json.message, 'error');
     }
@@ -632,7 +834,5 @@ function showToast(message, type = 'info') {
   toast.className = `toast ${type}`;
   toast.textContent = message;
   container.appendChild(toast);
-  setTimeout(() => {
-    toast.remove();
-  }, 4000);
+  setTimeout(() => toast.remove(), 4000);
 }

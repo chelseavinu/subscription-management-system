@@ -20,11 +20,14 @@
           </svg>
         </div>
         <div class="brand-text">
-          <h1>Brightloop Subscription Engine</h1>
-          <p>Member 2: Backend Logic, Subscriptions Lifecycle & Billing Automation</p>
+          <h1>Brightloop Subscription Platform</h1>
+          <p>Unified System: Products, Plans, Subscriptions, Billing Automation & Auth</p>
         </div>
       </div>
       <div class="header-actions">
+        <div id="user-badge" class="badge badge-confirmed" style="font-size: 0.8rem; padding: 6px 12px; display: flex; align-items: center; gap: 6px;">
+          <span>👤 Role:</span> <strong id="active-user-role">Admin</strong>
+        </div>
         <button id="btn-refresh" class="btn btn-secondary">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
           Refresh Data
@@ -62,10 +65,12 @@
 
     <!-- Navigation Tabs -->
     <div class="tabs">
-      <button class="tab-btn active" data-tab="tab-subscriptions">Subscriptions & State Machine</button>
-      <button class="tab-btn" data-tab="tab-invoices">Invoices & Billing Documents</button>
-      <button class="tab-btn" data-tab="tab-payments">Payment Transactions</button>
-      <button class="tab-btn" data-tab="tab-quote-sandbox">Quotation & Variant Calculator</button>
+      <button class="tab-btn active" data-tab="tab-subscriptions">Subscriptions & State Machine (Member 2)</button>
+      <button class="tab-btn" data-tab="tab-invoices">Invoices & Billing Documents (Member 2)</button>
+      <button class="tab-btn" data-tab="tab-payments">Payment Transactions (Member 2)</button>
+      <button class="tab-btn" data-tab="tab-quote-sandbox">Quotation & Variant Calculator (Member 2)</button>
+      <button class="tab-btn" data-tab="tab-catalog">Products & Plans Catalog (Member 1)</button>
+      <button class="tab-btn" data-tab="tab-auth">Auth & User Roles (Member 1)</button>
     </div>
 
     <!-- TAB 1: Subscriptions & State Machine -->
@@ -243,6 +248,123 @@
         </div>
       </div>
     </div>
+
+    <!-- TAB 5: Products & Plans Catalog (Member 1) -->
+    <div id="tab-catalog" class="tab-content">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+        <!-- Products Column -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Products & Variants</div>
+            <button class="btn btn-primary btn-sm" onclick="openModal('modal-create-product')">+ Add Product</button>
+          </div>
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Product Name</th>
+                  <th>Type</th>
+                  <th>Base Price</th>
+                  <th>Variants</th>
+                </tr>
+              </thead>
+              <tbody id="catalog-products-table">
+                <tr><td colspan="4" style="text-align: center;">Loading products...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Plans Column -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Billing Plans</div>
+            <button class="btn btn-primary btn-sm" onclick="openModal('modal-create-plan')">+ Add Plan</button>
+          </div>
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Plan Name</th>
+                  <th>Interval</th>
+                  <th>Min Qty</th>
+                  <th>Lifecycle Rules</th>
+                </tr>
+              </thead>
+              <tbody id="catalog-plans-table">
+                <tr><td colspan="4" style="text-align: center;">Loading plans...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 6: Auth & User Roles (Member 1) -->
+    <div id="tab-auth" class="tab-content">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+        <!-- Quick Login / Role Switcher -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Quick Demo Login & Role Switcher</div>
+            <span class="badge badge-active">JWT Authenticated</span>
+          </div>
+          <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 16px;">
+            Switch roles instantly to test role-based permissions across Admin, Staff, and Customer views:
+          </p>
+          <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px;">
+            <button class="btn btn-secondary" onclick="demoLogin('admin@brightloop.io', 'Password123!', 'admin')" style="justify-content: flex-start; padding: 12px;">
+              👑 <strong>Login as Admin</strong> &nbsp;&bull; full system control, add staff, manage plans
+            </button>
+            <button class="btn btn-secondary" onclick="demoLogin('sales@brightloop.io', 'Password123!', 'staff')" style="justify-content: flex-start; padding: 12px;">
+              💼 <strong>Login as Internal Staff / Sales Rep</strong> &nbsp;&bull; manage quotes & day-to-day work
+            </button>
+            <button class="btn btn-secondary" onclick="demoLogin('contact@acmeretail.com', 'Customer123!', 'customer')" style="justify-content: flex-start; padding: 12px;">
+              👤 <strong>Login as Customer</strong> &nbsp;&bull; view own subscriptions and invoices
+            </button>
+          </div>
+
+          <!-- Active Session Info -->
+          <div style="background: rgba(0,0,0,0.3); border-radius: 10px; padding: 16px; border: 1px solid var(--border-color);">
+            <h4 style="font-size: 0.9rem; margin-bottom: 8px; color: var(--accent-cyan);">Active Session Token</h4>
+            <div id="session-user-info" style="font-size: 0.8rem; color: var(--text-secondary); word-break: break-all;">
+              Logged in as: <strong>Admin (Sarah Connor)</strong> | Role: <span class="badge badge-confirmed">admin</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Registration & Password Policy -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Register New Customer / Staff</div>
+            <span style="font-size: 0.8rem; color: var(--text-muted);">Scene 1: New customer signs up</span>
+          </div>
+          <div class="form-group">
+            <label>Full Name</label>
+            <input type="text" id="reg-name" placeholder="John Doe">
+          </div>
+          <div class="form-group">
+            <label>Email Address</label>
+            <input type="email" id="reg-email" placeholder="john@company.com">
+          </div>
+          <div class="form-group">
+            <label>Password (strictly >8 chars, 1 uppercase, 1 lowercase, 1 special character)</label>
+            <input type="password" id="reg-password" placeholder="e.g. Bright#2026">
+          </div>
+          <div class="form-group">
+            <label>Account Role</label>
+            <select id="reg-role">
+              <option value="customer">Customer (Portal access only)</option>
+              <option value="staff">Internal Staff (Day-to-day handling)</option>
+              <option value="admin">Admin (Full system control)</option>
+            </select>
+          </div>
+          <button id="btn-submit-register" class="btn btn-primary" style="width: 100%; margin-top: 8px;">
+            Create Account & Generate JWT
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- MODAL 1: Trigger Billing Run -->
@@ -331,6 +453,83 @@
       <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px;">
         <button class="btn btn-secondary" data-close="modal-invoice-view">Close</button>
         <button onclick="window.print()" class="btn btn-primary">Print Invoice</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 4: Create Product (Member 1) -->
+  <div id="modal-create-product" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 style="font-size: 1.15rem; font-weight: 600;">Add New Product (Member 1)</h3>
+        <button class="close-btn" data-close="modal-create-product">&times;</button>
+      </div>
+      <div class="form-group">
+        <label>Product Name</label>
+        <input type="text" id="new-prod-name" placeholder="e.g. Inventory Management Pro">
+      </div>
+      <div class="form-group">
+        <label>Type</label>
+        <select id="new-prod-type">
+          <option value="software">Software</option>
+          <option value="addon">Add-on</option>
+          <option value="service">Service</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Sales Price ($)</label>
+        <input type="number" id="new-prod-price" value="990">
+      </div>
+      <div class="form-group">
+        <label>Variant Option (e.g. Brand: Odoo Connected)</label>
+        <input type="text" id="new-prod-var-option" value="Odoo Connected">
+      </div>
+      <div class="form-group">
+        <label>Variant Extra Price ($) (e.g. +560 for Odoo brand)</label>
+        <input type="number" id="new-prod-var-extra" value="560">
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px;">
+        <button class="btn btn-secondary" data-close="modal-create-product">Cancel</button>
+        <button id="btn-submit-new-product" class="btn btn-primary">Save Product</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 5: Create Plan (Member 1) -->
+  <div id="modal-create-plan" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 style="font-size: 1.15rem; font-weight: 600;">Add New Billing Plan (Member 1)</h3>
+        <button class="close-btn" data-close="modal-create-plan">&times;</button>
+      </div>
+      <div class="form-group">
+        <label>Plan Name</label>
+        <input type="text" id="new-plan-name" placeholder="e.g. Annual Growth Contract">
+      </div>
+      <div class="form-group">
+        <label>Billing Cadence / Frequency</label>
+        <select id="new-plan-interval">
+          <option value="monthly">Monthly</option>
+          <option value="yearly">Yearly</option>
+          <option value="weekly">Weekly</option>
+          <option value="daily">Daily</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Minimum Quantity Required</label>
+        <input type="number" id="new-plan-minqty" value="1" min="1">
+      </div>
+      <div class="form-group" style="display:flex; align-items:center; gap:8px;">
+        <input type="checkbox" id="new-plan-autoclose" style="width:auto;">
+        <label for="new-plan-autoclose" style="margin:0;">Auto-close when subscription ends</label>
+      </div>
+      <div class="form-group" style="display:flex; align-items:center; gap:8px;">
+        <input type="checkbox" id="new-plan-allowpause" checked style="width:auto;">
+        <label for="new-plan-allowpause" style="margin:0;">Allow early pause, resume and renewal</label>
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px;">
+        <button class="btn btn-secondary" data-close="modal-create-plan">Cancel</button>
+        <button id="btn-submit-new-plan" class="btn btn-primary">Save Plan</button>
       </div>
     </div>
   </div>

@@ -2,6 +2,14 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import dns from 'dns';
+
+// Fix Windows DNS resolution for MongoDB Atlas SRV records
+try {
+  dns.setServers(['8.8.8.8', '1.1.1.1']);
+} catch (e) {
+  // Ignore fallback error
+}
 
 // Robust resolution of the root .env file regardless of current working directory
 const __filename = fileURLToPath(import.meta.url);
