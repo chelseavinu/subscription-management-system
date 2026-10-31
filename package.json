@@ -1,0 +1,32 @@
+{
+  "name": "subscription-management-engine",
+  "version": "1.0.0",
+  "description": "Brightloop Subscription Management System - Backend Logic & Billing Engine (Member 2)",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "seed": "node src/scripts/seed.js",
+    "test": "node tests/member2-workflows.test.js"
+  },
+  "keywords": [
+    "subscription-management",
+    "billing-automation",
+    "invoicing",
+    "payments",
+    "express",
+    "mongodb"
+  ],
+  "author": "Brightloop Engineering Team",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "mongoose": "^8.9.5",
+    "morgan": "^1.10.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}
