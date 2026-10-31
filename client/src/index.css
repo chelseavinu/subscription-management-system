@@ -1,0 +1,678 @@
+/* ==========================================================================
+   BRIGHTLOOP DESIGN SYSTEM: PREMIUM LIQUID GLASS UI
+   Combining Apple's Liquid Glass, Stripe's financial clarity, and Linear's ergonomics.
+   ========================================================================== */
+
+:root {
+  /* 1. Core Brand Color System */
+  --navy-950: #040711;
+  --navy-900: #070B16;
+  --navy-850: #0B1120;
+  --navy-800: #0F172A;
+  --navy-700: #1E293B;
+
+  /* 2. Brand Accents */
+  --electric-blue: #0066FF;
+  --electric-blue-hover: #1A75FF;
+  --electric-blue-glow: rgba(0, 102, 255, 0.35);
+  --electric-blue-soft: rgba(0, 102, 255, 0.12);
+
+  --sophisticated-teal: #14B8A6;
+  --sophisticated-teal-glow: rgba(20, 184, 166, 0.35);
+  --sophisticated-teal-soft: rgba(20, 184, 166, 0.12);
+
+  /* 3. Cool Silver & Neutral Typography */
+  --silver-50: #F8FAFC;
+  --silver-100: #F1F5F9;
+  --silver-200: #E2E8F0;
+  --silver-300: #CBD5E1;
+  --silver-400: #94A3B8;
+  --silver-500: #64748B;
+  --silver-600: #475569;
+
+  /* 4. Financial & Status Palette */
+  --status-emerald: #10B981;
+  --status-emerald-bg: rgba(16, 185, 129, 0.12);
+  --status-emerald-border: rgba(16, 185, 129, 0.35);
+
+  --status-amber: #F59E0B;
+  --status-amber-bg: rgba(245, 158, 11, 0.12);
+  --status-amber-border: rgba(245, 158, 11, 0.35);
+
+  --status-rose: #F43F5E;
+  --status-rose-bg: rgba(244, 63, 94, 0.12);
+  --status-rose-border: rgba(244, 63, 94, 0.35);
+
+  --status-sky: #38BDF8;
+  --status-sky-bg: rgba(56, 189, 248, 0.12);
+  --status-sky-border: rgba(56, 189, 248, 0.35);
+
+  --status-slate: #94A3B8;
+  --status-slate-bg: rgba(148, 163, 184, 0.12);
+  --status-slate-border: rgba(148, 163, 184, 0.35);
+
+  /* 5. Liquid Glass Material Variables */
+  --glass-bg: rgba(13, 20, 36, 0.65);
+  --glass-bg-hover: rgba(18, 28, 51, 0.78);
+  --glass-bg-dense: rgba(11, 17, 32, 0.94); /* For dense financial tables & cards */
+  --glass-bg-subtle: rgba(255, 255, 255, 0.04);
+  --glass-bg-elevated: rgba(16, 25, 45, 0.85);
+
+  --glass-border: rgba(255, 255, 255, 0.09);
+  --glass-border-bright: rgba(255, 255, 255, 0.18);
+  --glass-border-hover: rgba(255, 255, 255, 0.22);
+  --glass-border-glow: rgba(0, 102, 255, 0.45);
+
+  --glass-specular: linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.02) 60%, rgba(255, 255, 255, 0) 100%);
+  --glass-highlight: inset 0 1px 1px 0 rgba(255, 255, 255, 0.16);
+
+  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.25);
+  --shadow-md: 0 12px 32px -4px rgba(0, 0, 0, 0.45), 0 0 1px rgba(255, 255, 255, 0.1) inset;
+  --shadow-lg: 0 24px 56px -8px rgba(0, 0, 0, 0.65), 0 0 1px rgba(255, 255, 255, 0.18) inset;
+  --shadow-glow: 0 0 28px rgba(0, 102, 255, 0.28);
+
+  /* 6. Typography & Radii */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Outfit', 'Inter', -apple-system, sans-serif;
+  
+  --radius-xs: 6px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-2xl: 24px;
+  --radius-pill: 9999px;
+
+  --transition-fast: 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-normal: 240ms cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-smooth: 350ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ==========================================================================
+   RESET & FOUNDATION
+   ========================================================================== */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  min-height: 100vh;
+  background-color: var(--navy-950);
+  color: var(--silver-100);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* Tabular figures for numbers, currency, and dates */
+.tabular-nums, .num, .currency-val {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+/* Ambient Lighting Depth Effect behind the application */
+.ambient-lighting {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.ambient-blob-1 {
+  position: absolute;
+  top: -15%;
+  left: 15%;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(0, 102, 255, 0.12) 0%, rgba(0, 102, 255, 0) 70%);
+  filter: blur(80px);
+  border-radius: 50%;
+}
+
+.ambient-blob-2 {
+  position: absolute;
+  top: 30%;
+  right: -10%;
+  width: 650px;
+  height: 650px;
+  background: radial-gradient(circle, rgba(20, 184, 166, 0.09) 0%, rgba(20, 184, 166, 0) 70%);
+  filter: blur(90px);
+  border-radius: 50%;
+}
+
+.ambient-blob-3 {
+  position: absolute;
+  bottom: -10%;
+  left: 20%;
+  width: 550px;
+  height: 550px;
+  background: radial-gradient(circle, rgba(0, 102, 255, 0.08) 0%, rgba(0, 102, 255, 0) 70%);
+  filter: blur(80px);
+  border-radius: 50%;
+}
+
+/* ==========================================================================
+   LIQUID GLASS MATERIAL UTILITIES
+   ========================================================================== */
+
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px) saturate(190%);
+  -webkit-backdrop-filter: blur(20px) saturate(190%);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-md);
+  border-radius: var(--radius-lg);
+  position: relative;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.glass-panel-elevated {
+  background: var(--glass-bg-elevated);
+  backdrop-filter: blur(24px) saturate(200%);
+  -webkit-backdrop-filter: blur(24px) saturate(200%);
+  border: 1px solid var(--glass-border-bright);
+  box-shadow: var(--shadow-lg);
+  border-radius: var(--radius-xl);
+}
+
+/* High contrast glass for dense financial tables */
+.glass-panel-dense {
+  background: var(--glass-bg-dense);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-md);
+  border-radius: var(--radius-lg);
+}
+
+/* Glass Specular Sheen (Apple-inspired top-highlight) */
+.glass-sheen::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--glass-specular);
+  pointer-events: none;
+}
+
+.glass-interactive {
+  cursor: pointer;
+  transition: transform var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+}
+
+.glass-interactive:hover {
+  background: var(--glass-bg-hover);
+  border-color: var(--glass-border-bright);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg), var(--shadow-glow);
+}
+
+/* Fallback for browsers without backdrop-filter */
+@supports not (backdrop-filter: blur(1px)) {
+  .glass-panel,
+  .glass-panel-elevated,
+  .glass-panel-dense {
+    background-color: var(--navy-850) !important;
+  }
+}
+
+/* ==========================================================================
+   TYPOGRAPHY
+   ========================================================================== */
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  color: var(--silver-50);
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+h1 {
+  font-size: 1.85rem;
+  letter-spacing: -0.025em;
+}
+
+h2 {
+  font-size: 1.4rem;
+  letter-spacing: -0.02em;
+}
+
+h3 {
+  font-size: 1.15rem;
+  letter-spacing: -0.015em;
+}
+
+h4 {
+  font-size: 0.95rem;
+  letter-spacing: -0.01em;
+}
+
+p {
+  color: var(--silver-300);
+}
+
+.text-muted {
+  color: var(--silver-400);
+}
+
+.text-secondary {
+  color: var(--silver-500);
+}
+
+.text-highlight {
+  color: var(--silver-50);
+  font-weight: 600;
+}
+
+.text-blue {
+  color: #38BDF8;
+}
+
+.text-teal {
+  color: #2DD4BF;
+}
+
+/* ==========================================================================
+   BUTTONS & CONTROLS
+   ========================================================================== */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all var(--transition-fast);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--electric-blue);
+  outline-offset: 2px;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--electric-blue) 0%, #0052CC 100%);
+  color: #FFFFFF;
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 16px var(--electric-blue-glow), inset 0 1px 1px rgba(255, 255, 255, 0.25);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, var(--electric-blue-hover) 0%, var(--electric-blue) 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(0, 102, 255, 0.45);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--silver-100);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(12px);
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--glass-border-bright);
+  color: #FFFFFF;
+}
+
+.btn-teal {
+  background: linear-gradient(135deg, var(--sophisticated-teal) 0%, #0D9488 100%);
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 16px var(--sophisticated-teal-glow);
+}
+
+.btn-teal:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(20, 184, 166, 0.45);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--silver-300);
+}
+
+.btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--silver-50);
+}
+
+.btn-sm {
+  padding: 5px 10px;
+  font-size: 0.8rem;
+  border-radius: var(--radius-sm);
+}
+
+.btn-lg {
+  padding: 12px 24px;
+  font-size: 1rem;
+  border-radius: var(--radius-lg);
+}
+
+/* ==========================================================================
+   INPUTS & FORM CONTROLS
+   ========================================================================== */
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+  text-align: left;
+}
+
+.form-label {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--silver-200);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.form-input, .form-select, .form-textarea {
+  width: 100%;
+  background: rgba(11, 17, 32, 0.8);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  color: var(--silver-50);
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  transition: all var(--transition-fast);
+  outline: none;
+}
+
+.form-input:hover, .form-select:hover, .form-textarea:hover {
+  border-color: var(--glass-border-bright);
+}
+
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+  border-color: var(--electric-blue);
+  box-shadow: 0 0 0 3px var(--electric-blue-soft), 0 0 16px rgba(0, 102, 255, 0.2);
+  background: rgba(14, 22, 42, 0.95);
+}
+
+.form-input::placeholder {
+  color: var(--silver-500);
+}
+
+.form-hint {
+  font-size: 0.75rem;
+  color: var(--silver-400);
+}
+
+.form-error {
+  font-size: 0.75rem;
+  color: var(--status-rose);
+  margin-top: 4px;
+}
+
+/* ==========================================================================
+   STATUS BADGES
+   ========================================================================== */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  text-transform: capitalize;
+  letter-spacing: 0.02em;
+  border: 1px solid transparent;
+}
+
+.badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+/* Active / Paid */
+.badge-active, .badge-paid {
+  background: var(--status-emerald-bg);
+  color: #34D399;
+  border-color: var(--status-emerald-border);
+}
+.badge-active .badge-dot, .badge-paid .badge-dot {
+  background: var(--status-emerald);
+  box-shadow: 0 0 8px var(--status-emerald);
+}
+
+/* Confirmed */
+.badge-confirmed {
+  background: var(--status-sky-bg);
+  color: #38BDF8;
+  border-color: var(--status-sky-border);
+}
+.badge-confirmed .badge-dot {
+  background: var(--status-sky);
+  box-shadow: 0 0 8px var(--status-sky);
+}
+
+/* Quotation / Pending */
+.badge-quotation, .badge-pending {
+  background: var(--status-amber-bg);
+  color: #FBBF24;
+  border-color: var(--status-amber-border);
+}
+.badge-quotation .badge-dot, .badge-pending .badge-dot {
+  background: var(--status-amber);
+  box-shadow: 0 0 8px var(--status-amber);
+}
+
+/* Overdue / Closed */
+.badge-overdue, .badge-closed {
+  background: var(--status-rose-bg);
+  color: #FB7185;
+  border-color: var(--status-rose-border);
+}
+.badge-overdue .badge-dot, .badge-closed .badge-dot {
+  background: var(--status-rose);
+  box-shadow: 0 0 8px var(--status-rose);
+}
+
+/* Draft */
+.badge-draft {
+  background: var(--status-slate-bg);
+  color: var(--silver-300);
+  border-color: var(--status-slate-border);
+}
+.badge-draft .badge-dot {
+  background: var(--silver-400);
+}
+
+/* ==========================================================================
+   FINANCIAL DATA TABLES (DENSE HIGH CONTRAST)
+   ========================================================================== */
+
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg-dense);
+}
+
+.glass-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  text-align: left;
+}
+
+.glass-table th {
+  background: rgba(15, 23, 42, 0.95);
+  color: var(--silver-400);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--glass-border);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.glass-table td {
+  padding: 14px 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  color: var(--silver-100);
+  font-size: 0.875rem;
+  vertical-align: middle;
+  transition: background var(--transition-fast);
+}
+
+.glass-table tbody tr {
+  transition: background var(--transition-fast);
+}
+
+.glass-table tbody tr:hover td {
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.glass-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* ==========================================================================
+   MODALS & DIALOGS
+   ========================================================================== */
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 7, 17, 0.78);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 200ms ease-out;
+}
+
+.modal-dialog {
+  width: 100%;
+  max-width: 620px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: var(--navy-900);
+  border: 1px solid var(--glass-border-bright);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg), 0 0 50px rgba(0, 102, 255, 0.15);
+  position: relative;
+  animation: modalScale 250ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modalScale {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* ==========================================================================
+   SCROLLBAR & ACCESSIBILITY
+   ========================================================================== */
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+@media (max-width: 900px) {
+  header.glass-panel {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  div[style*="display: flex"][style*="maxWidth: 1440px"],
+  div[style*="display: 'flex'"][style*="maxWidth: '1440px'"] {
+    flex-direction: column !important;
+  }
+
+  aside.glass-panel {
+    width: auto !important;
+    margin: 12px 16px 0 16px !important;
+  }
+
+  main {
+    padding: 16px !important;
+  }
+
+  .table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .modal-dialog {
+    margin: 12px;
+    max-height: 95vh;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

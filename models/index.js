@@ -5,6 +5,7 @@ import Subscription from './Subscription.js';
 import Invoice from './Invoice.js';
 import Payment from './Payment.js';
 import Discount from './Discount.js';
+import QuotationTemplate from './QuotationTemplate.js';
 
 export {
   User,
@@ -14,6 +15,7 @@ export {
   Invoice,
   Payment,
   Discount,
+  QuotationTemplate,
 };
 
 export default {
@@ -24,4 +26,5 @@ export default {
   Invoice,
   Payment,
   Discount,
+  QuotationTemplate,
 };

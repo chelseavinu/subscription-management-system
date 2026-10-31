@@ -3,9 +3,13 @@ import {
   register,
   login,
   forgotPassword,
+  resetPassword,
   getMe,
+  updateProfile,
+  changePassword,
+  getCustomers,
 } from '../controllers/authController.js';
-import { protect, optionalAuth } from '../middleware/auth.js';
+import { protect, optionalAuth, authorize } from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -15,10 +19,16 @@ router.post('/register', optionalAuth, register);
 // Login and token generation
 router.post('/login', login);
 
-// Mock forgot password endpoint
+// Forgot password & reset password endpoints
 router.post('/forgot-password', forgotPassword);
+router.post('/reset-password', resetPassword);
 
-// Current user profile
+// Current user profile & account management
 router.get('/me', protect, getMe);
+router.put('/profile', protect, updateProfile);
+router.post('/change-password', protect, changePassword);
+
+// Customers list for Sales Staff and Admin
+router.get('/customers', protect, authorize('admin', 'staff'), getCustomers);
 
 export default router;
