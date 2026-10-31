@@ -347,6 +347,8 @@ export default function App() {
                   subscriptions={subscriptions}
                   invoices={invoices}
                   onRefresh={loadData}
+                  onPayInvoice={(inv) => setActivePaymentInvoice(inv)}
+                  onViewInvoice={(inv) => setActiveDetailInvoice(inv)}
                 />
               )}
 

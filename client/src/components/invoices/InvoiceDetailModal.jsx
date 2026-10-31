@@ -2,9 +2,17 @@ import React from 'react';
 import { Printer, Download, CreditCard, CheckCircle2, ShieldCheck, Building2, Calendar, FileText } from 'lucide-react';
 import Modal from '../common/Modal';
 import Badge from '../common/Badge';
+import { downloadReceiptFile } from '../../utils/receiptGenerator';
 
 export default function InvoiceDetailModal({ isOpen, onClose, invoice, onRecordPayment }) {
   if (!invoice) return null;
+
+  const handleDownload = () => {
+    downloadReceiptFile(invoice, {
+      name: invoice.customer_name,
+      email: invoice.customer_email
+    });
+  };
 
   const handlePrint = () => {
     window.print();
@@ -33,8 +41,14 @@ export default function InvoiceDetailModal({ isOpen, onClose, invoice, onRecordP
 
           <div className="flex items-center gap-2">
             <button
+              onClick={handleDownload}
+              className="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-300 bg-slate-900 hover:bg-slate-800 border border-slate-700 flex items-center gap-1.5 transition-colors cursor-pointer"
+            >
+              <Download className="w-3.5 h-3.5 text-amber-400" /> Download
+            </button>
+            <button
               onClick={handlePrint}
-              className="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-300 bg-slate-900 hover:bg-slate-800 border border-slate-700 flex items-center gap-1.5 transition-colors"
+              className="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-300 bg-slate-900 hover:bg-slate-800 border border-slate-700 flex items-center gap-1.5 transition-colors cursor-pointer"
             >
               <Printer className="w-3.5 h-3.5" /> Print / PDF
             </button>

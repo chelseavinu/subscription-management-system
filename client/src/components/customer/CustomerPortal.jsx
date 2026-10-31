@@ -10,9 +10,12 @@ import {
   Calendar,
   AlertTriangle,
   Zap,
-  ArrowUpRight
+  ArrowUpRight,
+  Download,
+  Printer
 } from 'lucide-react';
 import Badge from '../common/Badge';
+import { downloadReceiptFile, printOrDownloadReceipt } from '../../utils/receiptGenerator';
 
 export default function CustomerPortal({
   currentUser,
@@ -253,10 +256,11 @@ export default function CustomerPortal({
                         <td className="py-3 px-4 text-right">
                           <div className="flex items-center justify-end gap-2">
                             <button
-                              onClick={() => onViewInvoice && onViewInvoice(inv)}
-                              className="royal-pill px-2.5 py-1 rounded-lg text-slate-300 hover:text-white text-[11px] flex items-center gap-1 transition-colors cursor-pointer"
+                              onClick={() => downloadReceiptFile(inv, { name: customerName, email: customerEmail })}
+                              title="Download Official Receipt HTML/PDF"
+                              className="royal-pill px-2.5 py-1 rounded-lg text-slate-300 hover:text-white text-[11px] flex items-center gap-1.5 transition-colors cursor-pointer hover:bg-white/[0.08]"
                             >
-                              <FileText className="w-3.5 h-3.5" />
+                              <Download className="w-3.5 h-3.5 text-amber-400" />
                               <span>Receipt</span>
                             </button>
                             {!isPaid && (
