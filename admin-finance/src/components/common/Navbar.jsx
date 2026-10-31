@@ -48,6 +48,24 @@ export default function Navbar({
             <span>Trigger Billing Run</span>
           </button>
 
+          {/* Direct Switch to Customer & Sales Portal */}
+          <a
+            href="/"
+            className="royal-pill flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs text-sky-400 hover:text-white transition-colors"
+            title="Switch to Customer & Sales Portal"
+          >
+            <span>👥 Customer & Sales</span>
+          </a>
+
+          {/* Direct Switch to Billing Engine */}
+          <a
+            href="/engine"
+            className="royal-pill flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs text-emerald-400 hover:text-white transition-colors"
+            title="Switch to Billing Engine Control Center"
+          >
+            <span>⚡ Engine</span>
+          </a>
+
           {/* Mode Pill (Minimal) */}
           <button
             onClick={onOpenSettings}

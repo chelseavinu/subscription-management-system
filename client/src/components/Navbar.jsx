@@ -140,6 +140,51 @@ export const Navbar = ({
 
       {/* Right: Actions, Currency, Role Switcher, Profile */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        {/* Quick Portal Switchers */}
+        <a
+          href="/admin"
+          className="btn btn-secondary btn-sm"
+          style={{
+            height: '36px',
+            padding: '6px 12px',
+            fontSize: '0.8125rem',
+            fontWeight: 600,
+            color: '#FBBF24',
+            background: 'rgba(245, 158, 11, 0.1)',
+            border: '1px solid rgba(245, 158, 11, 0.3)',
+            borderRadius: 'var(--radius-pill)',
+            textDecoration: 'none',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '5px',
+          }}
+          title="Open Member 4 Admin & Finance Hub"
+        >
+          👑 Finance Hub
+        </a>
+
+        <a
+          href="/engine"
+          className="btn btn-secondary btn-sm"
+          style={{
+            height: '36px',
+            padding: '6px 12px',
+            fontSize: '0.8125rem',
+            fontWeight: 600,
+            color: '#34D399',
+            background: 'rgba(16, 185, 129, 0.1)',
+            border: '1px solid rgba(16, 185, 129, 0.3)',
+            borderRadius: 'var(--radius-pill)',
+            textDecoration: 'none',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '5px',
+          }}
+          title="Open Member 2 Billing Engine Control Center"
+        >
+          ⚡ Engine
+        </a>
+
         {/* Currency Switcher */}
         <select
           value={currency}
