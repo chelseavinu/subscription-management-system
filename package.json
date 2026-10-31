@@ -1,7 +1,7 @@
 {
   "name": "brightloop-platform",
   "version": "1.0.0",
-  "description": "Brightloop Software - Subscription Management and Recurring Billing Platform",
+  "description": "Brightloop Software - Unified Subscription Management and Recurring Billing Platform",
   "main": "server.js",
   "type": "module",
   "scripts": {
@@ -9,7 +9,12 @@
     "dev": "node --watch server.js",
     "client": "npm run dev --prefix client",
     "build:client": "npm run build --prefix client",
-    "seed": "node scripts/seed.js"
+    "seed": "node scripts/seed.js",
+    "seed:engine": "node src/scripts/seed.js",
+    "start:engine": "node src/server.js",
+    "test:member2": "node tests/member2-workflows.test.js",
+    "test:member3": "node scripts/test_member3.js",
+    "test": "node tests/member2-workflows.test.js"
   },
   "keywords": [
     "odoo",
@@ -30,6 +35,10 @@
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.9.5"
+    "mongoose": "^8.9.5",
+    "morgan": "^1.10.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
   }
 }

@@ -19,18 +19,22 @@ connectDB();
 
 const app = express();
 
-// Middlewares
-app.use(cors({
-  origin: '*', // Allows cross-origin requests for hackathon frontend & testing
-  credentials: true,
-}));
+// 1. CORS Configuration (Properly sequenced before routes)
+app.use(
+  cors({
+    origin: '*', // Allows cross-origin requests for hackathon frontend & testing
+    credentials: true,
+  })
+);
+
+// 2. Request Parsers
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Mount Central API Routes at /api
+// 3. Mount Central API Routes at /api
 app.use('/api', apiRoutes);
 
-// Static Client Serving if built
+// 4. Static Client Serving if built
 const clientDistPath = path.join(__dirname, 'client', 'dist');
 if (fs.existsSync(clientDistPath)) {
   app.use(express.static(clientDistPath));
@@ -55,6 +59,9 @@ if (fs.existsSync(clientDistPath)) {
         subscriptions: '/api/subscriptions',
         invoices: '/api/invoices',
         payments: '/api/payments',
+        quotationTemplates: '/api/quotation-templates',
+        sales: '/api/sales',
+        customers: '/api/customers',
         analytics: '/api/analytics/dashboard',
         health: '/api/health',
       },
@@ -62,7 +69,7 @@ if (fs.existsSync(clientDistPath)) {
   });
 }
 
-// 404 Not Found Catch-All Handler for API
+// 5. 404 Not Found Catch-All Handler for API
 app.use('/api/*', (req, res) => {
   res.status(404).json({
     success: false,
@@ -70,7 +77,15 @@ app.use('/api/*', (req, res) => {
   });
 });
 
-// Central Error Handler Middleware
+// Fallback 404
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    message: `Resource not found at ${req.originalUrl}`,
+  });
+});
+
+// 6. Centralized Error Handler Middleware (Properly placed last)
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;

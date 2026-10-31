@@ -1,5 +1,13 @@
-import mongoose from 'mongoose';
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// 1. Robust resolution of the root .env file regardless of current working directory
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
+
+import mongoose from 'mongoose';
 import User from '../models/User.js';
 import Product from '../models/Product.js';
 import Plan from '../models/Plan.js';
@@ -9,21 +17,36 @@ import Payment from '../models/Payment.js';
 import Discount from '../models/Discount.js';
 import QuotationTemplate from '../models/QuotationTemplate.js';
 
-// Load environment variables
-dotenv.config();
-
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/brightloop';
+/**
+ * Helper to mask sensitive credentials in connection string for logging
+ */
+const maskMongoUri = (uri) => {
+  if (!uri) return '';
+  return uri.replace(/\/\/([^:]+):([^@]+)@/, '//$1:****@');
+};
 
 /**
  * Seed Database Function
  */
 const seedData = async () => {
   try {
-    console.log('[Seed] Connecting to database at:', MONGO_URI);
-    await mongoose.connect(MONGO_URI);
+    // 2. Support both MONGODB_URI and MONGO_URI
+    const rawMongoUri = process.env.MONGODB_URI || process.env.MONGO_URI;
+
+    // 3. Explicit check before attempting connection
+    if (!rawMongoUri) {
+      console.error('====================================================');
+      console.error('[Seed Error] Neither MONGODB_URI nor MONGO_URI was found in the root .env file.');
+      console.error('Please configure your MongoDB connection string in .env and try again.');
+      console.error('====================================================');
+      process.exit(1);
+    }
+
+    console.log('[Seed] Connecting to database at:', maskMongoUri(rawMongoUri));
+    await mongoose.connect(rawMongoUri);
     console.log('[Seed] Database connected successfully.');
 
-    // 1. Wipe existing data across all collections
+    // 4. Wipe existing data across all collections
     console.log('[Seed] Wiping existing collections...');
     await Promise.all([
       User.deleteMany({}),
@@ -37,7 +60,8 @@ const seedData = async () => {
     ]);
     console.log('[Seed] Existing collections wiped.');
 
-    // 2. Seed Users
+    // 5. Seed Users
+    // Passwords satisfy validation rules: strictly > 8 chars, uppercase, lowercase, special char
     console.log('[Seed] Creating seed users...');
     const usersToCreate = [
       {
@@ -81,7 +105,7 @@ const seedData = async () => {
 
     console.log(`[Seed] Created ${createdUsers.length} users.`);
 
-    // 3. Seed Products
+    // 6. Seed Products
     console.log('[Seed] Creating sample products...');
     const productsToCreate = [
       {
@@ -155,7 +179,7 @@ const seedData = async () => {
 
     console.log(`[Seed] Created ${createdProducts.length} sample products.`);
 
-    // 4. Seed Plans
+    // 7. Seed Plans
     console.log('[Seed] Creating sample billing plans...');
     const plansToCreate = [
       {
@@ -194,7 +218,7 @@ const seedData = async () => {
 
     console.log(`[Seed] Created ${createdPlans.length} sample plans.`);
 
-    // 5. Seed Discount
+    // 8. Seed Sample Discount code for teammates
     const sampleDiscount = await Discount.create({
       code: 'HACKATHON20',
       type: 'percentage',

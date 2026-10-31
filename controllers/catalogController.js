@@ -2,13 +2,13 @@ import Product from '../models/Product.js';
 import Plan from '../models/Plan.js';
 
 // ==========================================
-// Product Controllers
+// Product Catalog Controllers
 // ==========================================
 
 /**
- * @desc    Get all products with variants
+ * @desc    Fetch all products with their variants
  * @route   GET /api/products
- * @access  Public / Authenticated
+ * @access  Private (Authenticated: admin, staff, customer)
  */
 export const getProducts = async (req, res, next) => {
   try {
@@ -32,7 +32,7 @@ export const getProducts = async (req, res, next) => {
 /**
  * @desc    Get single product by ID
  * @route   GET /api/products/:id
- * @access  Public / Authenticated
+ * @access  Private (Authenticated: admin, staff, customer)
  */
 export const getProductById = async (req, res, next) => {
   try {
@@ -55,7 +55,7 @@ export const getProductById = async (req, res, next) => {
 };
 
 /**
- * @desc    Create a product with optional variants
+ * @desc    Create a product with variants
  * @route   POST /api/products
  * @access  Private (Admin only)
  */
@@ -70,7 +70,14 @@ export const createProduct = async (req, res, next) => {
       });
     }
 
-    // Format variants if provided
+    if (Number(sales_price) < 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Sales price cannot be negative',
+      });
+    }
+
+    // Format variants if provided (e.g. [{ name: "Brand", option: "Odoo", extra_price: 560 }])
     let formattedVariants = [];
     if (Array.isArray(variants)) {
       formattedVariants = variants.map((v) => ({
@@ -155,20 +162,23 @@ export const deleteProduct = async (req, res, next) => {
 };
 
 // ==========================================
-// Plan Controllers
+// Plan Catalog Controllers
 // ==========================================
 
 /**
- * @desc    Get all active plans (or all plans if all=true)
+ * @desc    Fetch all active billing plans
  * @route   GET /api/plans
- * @access  Public / Authenticated
+ * @access  Private (Authenticated: admin, staff, customer)
  */
 export const getPlans = async (req, res, next) => {
   try {
-    const filter = {};
-    if (req.query.all !== 'true') {
-      filter.is_active = true;
+    const filter = { is_active: true };
+
+    // Admin can optionally view all plans with ?all=true
+    if (req.query.all === 'true' && req.user?.role === 'admin') {
+      delete filter.is_active;
     }
+
     if (req.query.billing_interval) {
       filter.billing_interval = req.query.billing_interval.toLowerCase();
     }
@@ -188,7 +198,7 @@ export const getPlans = async (req, res, next) => {
 /**
  * @desc    Get single plan by ID
  * @route   GET /api/plans/:id
- * @access  Public / Authenticated
+ * @access  Private (Authenticated: admin, staff, customer)
  */
 export const getPlanById = async (req, res, next) => {
   try {
@@ -211,7 +221,7 @@ export const getPlanById = async (req, res, next) => {
 };
 
 /**
- * @desc    Create a billing plan
+ * @desc    Create a recurring billing plan
  * @route   POST /api/plans
  * @access  Private (Admin only)
  */
@@ -234,9 +244,25 @@ export const createPlan = async (req, res, next) => {
       });
     }
 
+    const validIntervals = ['daily', 'weekly', 'monthly', 'yearly'];
+    const interval = billing_interval.toLowerCase().trim();
+    if (!validIntervals.includes(interval)) {
+      return res.status(400).json({
+        success: false,
+        message: `Invalid billing_interval: ${billing_interval}. Allowed intervals: ${validIntervals.join(', ')}`,
+      });
+    }
+
+    if (Number(base_price) < 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Base price cannot be negative',
+      });
+    }
+
     const plan = await Plan.create({
       name: name.trim(),
-      billing_interval: billing_interval.toLowerCase().trim(),
+      billing_interval: interval,
       base_price: Number(base_price),
       min_quantity: min_quantity !== undefined ? Number(min_quantity) : 1,
       auto_close: Boolean(auto_close),
@@ -255,7 +281,7 @@ export const createPlan = async (req, res, next) => {
 };
 
 /**
- * @desc    Update a plan
+ * @desc    Update a billing plan
  * @route   PUT /api/plans/:id
  * @access  Private (Admin only)
  */
@@ -284,7 +310,7 @@ export const updatePlan = async (req, res, next) => {
 };
 
 /**
- * @desc    Delete a plan
+ * @desc    Delete a billing plan
  * @route   DELETE /api/plans/:id
  * @access  Private (Admin only)
  */
