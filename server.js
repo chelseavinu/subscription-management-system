@@ -97,6 +97,12 @@ const server = app.listen(PORT, () => {
   console.log(`🌍 Client URL: http://localhost:${PORT}`);
   console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`====================================================`);
+}).on('error', (err) => {
+  if (err.code === 'EADDRINUSE') {
+    console.log(`📡 Port ${PORT} already active, connected to existing server.`);
+  } else {
+    console.error(`Server listen error: ${err.message}`);
+  }
 });
 
 // Handle unhandled promise rejections

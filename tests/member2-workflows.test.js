@@ -1,8 +1,14 @@
-const assert = require('assert');
-const mongoose = require('mongoose');
-const dns = require('dns');
-const dotenv = require('dotenv');
-const path = require('path');
+import assert from 'assert';
+import mongoose from 'mongoose';
+import { createRequire } from 'module';
+import { fileURLToPath } from 'url';
+import path from 'path';
+import dns from 'dns';
+import dotenv from 'dotenv';
+
+const require = createRequire(import.meta.url);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Set public DNS servers to resolve MongoDB Atlas SRV records on Windows
 try {
