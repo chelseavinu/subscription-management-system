@@ -126,14 +126,29 @@ class SubscriptionService {
       notes = ''
     } = payload;
 
-    // Verify Customer
+    // Verify or Auto-resolve Customer
     let customerData = { name: customer_name, email: customer_email };
-    if (customer_id) {
-      const foundCustomer = await User.findById(customer_id);
+    let resolvedCustomerId = customer_id;
+
+    if (resolvedCustomerId) {
+      const foundCustomer = await User.findById(resolvedCustomerId);
       if (foundCustomer) {
         customerData.name = foundCustomer.name;
         customerData.email = foundCustomer.email;
       }
+    } else if (customer_email) {
+      let existingCustomer = await User.findOne({ email: customer_email.trim().toLowerCase() });
+      if (!existingCustomer) {
+        existingCustomer = await User.create({
+          name: customer_name || 'Prospect Customer',
+          email: customer_email.trim().toLowerCase(),
+          password_hash: 'Customer123!',
+          role: 'customer'
+        });
+      }
+      resolvedCustomerId = existingCustomer._id;
+      customerData.name = existingCustomer.name;
+      customerData.email = existingCustomer.email;
     }
 
     if (!customerData.name || !customerData.email) {
@@ -158,7 +173,7 @@ class SubscriptionService {
 
     const subscription = new Subscription({
       subscription_number: subscriptionNumber,
-      customer_id,
+      customer_id: resolvedCustomerId,
       customer_name: customerData.name,
       customer_email: customerData.email,
       plan_id: plan._id,

@@ -14,6 +14,7 @@ class BillingEngineService {
    */
   async triggerBillingRun(targetDate = new Date(), options = {}) {
     const billingDate = new Date(targetDate);
+    billingDate.setHours(23, 59, 59, 999);
     const { dryRun = false, autoConfirm = false } = options;
 
     // Find all active subscriptions that are due for billing
