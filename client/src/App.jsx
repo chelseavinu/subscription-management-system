@@ -11,6 +11,7 @@ import BillingRunModal from './components/billing/BillingRunModal';
 import ApiSettingsModal from './components/settings/ApiSettingsModal';
 import PaymentRecordModal from './components/invoices/PaymentRecordModal';
 import InvoiceDetailModal from './components/invoices/InvoiceDetailModal';
+import Login from './components/auth/Login';
 import { 
   productsApi, 
   plansApi, 
@@ -19,11 +20,14 @@ import {
   paymentsApi, 
   discountsApi, 
   financeApi,
+  authApi,
   config
 } from './services/api';
 import { CheckCircle2, AlertCircle, Info } from 'lucide-react';
 
 export default function App() {
+  const [token, setToken] = useState(() => authApi.getToken());
+  const [currentUser, setCurrentUser] = useState(() => authApi.getCurrentUser());
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isLoading, setIsLoading] = useState(true);
   const [toast, setToast] = useState(null);
@@ -86,8 +90,25 @@ export default function App() {
   };
 
   useEffect(() => {
-    loadData();
-  }, []);
+    if (token) {
+      loadData();
+    } else {
+      setIsLoading(false);
+    }
+  }, [token]);
+
+  const handleLoginSuccess = (user, jwtToken) => {
+    setCurrentUser(user);
+    setToken(jwtToken);
+    showToast(`Welcome back, ${user.name}!`);
+  };
+
+  const handleLogout = () => {
+    authApi.logout();
+    setCurrentUser(null);
+    setToken(null);
+    showToast('Signed out successfully.');
+  };
 
   // ---------------- PRODUCT HANDLERS ----------------
   const handleCreateProduct = async (formData) => {
@@ -189,6 +210,10 @@ export default function App() {
     }
   };
 
+  if (!token) {
+    return <Login onLoginSuccess={handleLoginSuccess} />;
+  }
+
   return (
     <div className="min-h-screen royal-bg text-slate-100 flex flex-col relative selection:bg-amber-400 selection:text-slate-950">
       
@@ -212,6 +237,8 @@ export default function App() {
 
       {/* Top Navbar */}
       <Navbar
+        currentUser={currentUser}
+        onLogout={handleLogout}
         onTriggerBilling={() => setIsBillingModalOpen(true)}
         onOpenSettings={() => setIsSettingsModalOpen(true)}
         onResetData={handleResetData}
@@ -223,6 +250,8 @@ export default function App() {
         
         {/* Left Navigation Sidebar */}
         <Sidebar
+          currentUser={currentUser}
+          onLogout={handleLogout}
           activeTab={activeTab}
           onSelectTab={setActiveTab}
           metrics={metrics}

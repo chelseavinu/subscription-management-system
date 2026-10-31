@@ -477,3 +477,42 @@ export const financeApi = {
     };
   }
 };
+
+// ---------------- AUTHENTICATION API ----------------
+export const authApi = {
+  login: async (email, password) => {
+    const baseUrl = config.getBaseUrl().replace(/\/$/, '');
+    const res = await fetch(`${baseUrl}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.message || 'Invalid email or password');
+    }
+    if (data.token) {
+      localStorage.setItem('token', data.token);
+    }
+    if (data.user) {
+      localStorage.setItem('user', JSON.stringify(data.user));
+    }
+    return data;
+  },
+
+  getCurrentUser: () => {
+    try {
+      const u = localStorage.getItem('user');
+      return u ? JSON.parse(u) : null;
+    } catch {
+      return null;
+    }
+  },
+
+  getToken: () => localStorage.getItem('token'),
+
+  logout: () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+  },
+};

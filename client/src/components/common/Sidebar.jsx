@@ -6,10 +6,17 @@ import {
   FileText, 
   RefreshCw, 
   Tag, 
-  Code2
+  Code2,
+  LogOut
 } from 'lucide-react';
 
-export default function Sidebar({ activeTab, onSelectTab, metrics = {} }) {
+export default function Sidebar({ 
+  activeTab, 
+  onSelectTab, 
+  metrics = {},
+  currentUser,
+  onLogout
+}) {
   const navItems = [
     {
       id: 'dashboard',
@@ -94,14 +101,30 @@ export default function Sidebar({ activeTab, onSelectTab, metrics = {} }) {
         })}
       </div>
 
-      {/* Understated Financial Summary */}
-      <div className="pt-4 border-t border-white/[0.05] px-2">
+      {/* Understated Financial Summary & User Logout */}
+      <div className="pt-4 border-t border-white/[0.05] px-2 space-y-3">
         <div className="flex items-center justify-between text-xs">
           <span className="text-slate-500 font-medium text-[11px]">Active MRR</span>
           <span className="font-mono font-bold text-white text-xs">
             ${(metrics.mrr || 0).toLocaleString()}
           </span>
         </div>
+
+        {currentUser && (
+          <div className="pt-3 border-t border-white/[0.04] flex items-center justify-between gap-2">
+            <div className="min-w-0">
+              <p className="text-xs font-bold text-white truncate">{currentUser.name}</p>
+              <p className="text-[10px] text-amber-400 capitalize">{currentUser.role || 'Member'}</p>
+            </div>
+            <button
+              onClick={onLogout}
+              title="Sign Out"
+              className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors cursor-pointer"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        )}
       </div>
 
     </aside>
